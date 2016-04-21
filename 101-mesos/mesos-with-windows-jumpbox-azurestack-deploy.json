@@ -668,7 +668,7 @@
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
                     "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
-                    "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-mesos-azurestack-getent.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
+                    "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
                 }
             }
         },
@@ -864,7 +864,7 @@
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
                     "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
-                    "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-azurestack-getent.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
+                    "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
                 }
             }
         }
