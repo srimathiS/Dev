@@ -1,0 +1,35 @@
+{
+    "linuxAdminUsername": {
+        "value": "azureuser"
+    },
+    "linuxAdminPassword": {
+        "value": "GEN-PASSWORD"
+    },
+    "windowsAdminPassword": {
+        "value": "GEN-PASSWORD"
+    },
+    "jumpboxEndpointDNSNamePrefix": {
+        "value": "mjumpep"
+    },
+    "masterEndpointDNSNamePrefix": {
+        "value": "mmgmtep"
+    },
+    "agentEndpointDNSNamePrefix": {
+        "value": "mappep"
+    },
+    "agentCount": {
+        "value": 1
+    },
+    "masterCount": {
+        "value": 1
+    },
+    "agentVMSize": {
+        "value": "Standard_A1"
+    },
+    "nameSuffix": {        
+        "value": "UNIQUESTRING"
+    },
+    "blobStorageEndpoint": {
+           "value": "blob.core.windows.net"
+    }
+}
