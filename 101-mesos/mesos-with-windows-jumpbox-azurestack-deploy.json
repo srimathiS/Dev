@@ -236,7 +236,7 @@
 
         "orchestratorName": "mesos",
 
-        
+
         "jumpboxPublicIPAddressName": "[concat(variables('orchestratorName'), '-jumpbox-ip-', '-', variables('nameSuffix'))]",
 
         "marathonEnabled": true,
@@ -312,6 +312,8 @@
         "setBrowserFirstTabDefaultSuffix": "0:5050",
         "DisableIeEsc": ";Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}' -Name IsInstalled -Value 0 -Force; Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}'  -Name IsInstalled -Value 0 -Force;\"",
         "jumpboxWindowsCustomScript": "[concat(variables('setBrowserFirstTabDefaultPrefix'),variables('masterVMNamePrefix'),variables('setBrowserFirstTabDefaultSuffix'),variables('DisableIeEsc'))]",
+        "jumpboxScriptLocation": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/hostnameResolutionfix.ps1",
+        "jumpboxHostnameFix":  "[concat('powershell -ExecutionPolicy Unrestricted -file hostnameResolution.ps1', ' ', variables('masterVMNamePrefix'), variables('agentVMNamePrefix'), variables('masterFirstAddr'),variables('agentFirstAddr'), parameters('masterCount'), parameters('agentCount'))]",
 
         "masterNSGName": "[concat(variables('orchestratorName'), '-master-nsg-', variables('nameSuffix'))]",
         "masterNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('masterNSGName'))]",
@@ -512,7 +514,8 @@
                 "typeHandlerVersion": "1.4",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "commandToExecute": "[variables('jumpboxWindowsCustomScript')]"
+                    "fileUris": "[split(variables('jumpboxScriptLocation'), ' ')]",                    
+                    "commandToExecute": "[concat(variables('jumpboxWindowsCustomScript'), variables('jumpboxHostnamefix'))]"
                 }
             }
         },
