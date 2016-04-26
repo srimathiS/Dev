@@ -209,7 +209,7 @@
             "metadata": {
                 "description": "The root location for all the configuring scripts"
             },
-            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/"
+            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos-nonha-azure/parts/"
         }
     },
     "variables": {
@@ -263,11 +263,7 @@
         "linuxConfiguration": "[variables('linuxConfigurations')[variables('setLinuxConfigurationForVMCreate')]]",
 
         "orchestratorName": "mesos",
-
-        "masterPublicIPAddressName": "[concat(variables('orchestratorName'), '-ip-', variables('masterEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
-        "agentPublicIPAddressName": "[concat(variables('orchestratorName'), '-ip-', variables('agentEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
-        "jumpboxPublicIPAddressName": "[concat(variables('orchestratorName'), '-ip-', variables('jumpboxEndpointDNSNamePrefix'), '-', variables('nameSuffix'))]",
-
+        "jumpboxPublicIPAddressName": "[concat(variables('orchestratorName'), '-jumpbox-ip-', '-', variables('nameSuffix'))]",
         "marathonEnabled": true,
         "chronosEnabled": true,
         "swarmEnabled": false,
@@ -519,18 +515,6 @@
         },
         {
             "apiVersion": "[variables('apiVersion').network]",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[variables('masterPublicIPAddressName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic",
-                "dnsSettings": {
-                    "domainNameLabel": "[concat(variables('masterEndpointDNSNamePrefix'), variables('nameSuffix'))]"
-                }
-            }
-        },
-        {
-            "apiVersion": "[variables('apiVersion').network]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('masterNSGName')]",
             "location": "[resourceGroup().location]",
@@ -650,7 +634,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
+                    "fileUris": "[[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName')), concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]]",
                     "commandToExecute": "[variables('masterCustomScript')]"
                 }
             }
@@ -817,7 +801,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
+                     "fileUris": "[[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName')), concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]]",
                     "commandToExecute": "[variables('agentCustomScript')]"
                 }
             }
@@ -827,10 +811,6 @@
         "jumpboxFQDN": {
             "type": "string",
             "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('jumpboxPublicIPAddressName'))).dnsSettings.fqdn]"
-        },
-        "masterFQDN": {
-            "type": "string",
-            "value": "[reference(concat('Microsoft.Network/publicIPAddresses/', variables('masterPublicIPAddressName'))).dnsSettings.fqdn]"
         }
     }
 }
