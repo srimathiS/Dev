@@ -44,11 +44,7 @@
                 "description": "The number of Mesos agents for the cluster.  This value can be from 1 to 100"
             },
             "allowedValues": [
-                1,
-                2,
-                3,
-                4,
-                5
+                1,2,3,4,5,6,7,8,9,10
             ]
         },
         "masterCount": {
@@ -79,7 +75,7 @@
         },
         "masterVMSize": {
             "type": "string",
-            "defaultValue": "Standard_A2",
+            "defaultValue": "Standard_A1",
             "allowedValues": [
                 "Standard_A0",
                 "Standard_A1",
@@ -176,12 +172,12 @@
                 "description": "After installation, this specifies a script to download and install.  To disabled, set value to 'disabled'."
             }
         },
-        "configureMesosScriptLocation": {
+        "configureScriptsRootLocation": {
             "type": "string",
             "metadata": {
-                "description": "The scripts location for configuring mesos. spilt the uri's by space"
+                "description": "The root location for all the configuring scripts"
             },
-            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/configure-mesos-azurestack.sh https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/nginx.conf"
+            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/"
         }
     },
     "variables": {
@@ -212,7 +208,7 @@
         "vmsPerStorageAccount": "[parameters('vmsPerStorageAccount')]",
         "postInstallScriptURI": "[parameters('postInstallScriptURI')]",
 
-        "nameSuffix": "[parameters('nameSuffix')]",
+        "nameSuffix": "[tolower(parameters('nameSuffix'))]",
         "storageLocation": "[resourceGroup().location]",
 
         "sshKeyPath": "[concat('/home/', variables('adminUsername'), '/.ssh/authorized_keys')]",
@@ -312,8 +308,8 @@
         "setBrowserFirstTabDefaultSuffix": "0:5050",
         "DisableIeEsc": ";Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}' -Name IsInstalled -Value 0 -Force; Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}'  -Name IsInstalled -Value 0 -Force;\"",
         "jumpboxWindowsCustomScript": "[concat(variables('setBrowserFirstTabDefaultPrefix'),variables('masterVMNamePrefix'),variables('setBrowserFirstTabDefaultSuffix'),variables('DisableIeEsc'))]",
-        "jumpboxScriptLocation": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/hostnameResolutionfix.ps1",
-        "jumpboxHostnameFix":  "[concat('powershell -ExecutionPolicy Unrestricted -file hostnameResolution.ps1', ' ', variables('masterVMNamePrefix'), variables('agentVMNamePrefix'), variables('masterFirstAddr'),variables('agentFirstAddr'), parameters('masterCount'), parameters('agentCount'))]",
+        "jumpboxScriptName": "hostnameResolution.ps1",
+        "jumpboxHostnameFix":  "[concat('powershell -ExecutionPolicy Unrestricted -file hostnameResolution.ps1', ' ', variables('masterVMNamePrefix'), ' ', variables('agentVMNamePrefix'), ' ', variables('masterFirstAddr'),' ', variables('agentFirstAddr'), ' ', parameters('masterCount'), ' ', parameters('agentCount'))]",
 
         "masterNSGName": "[concat(variables('orchestratorName'), '-master-nsg-', variables('nameSuffix'))]",
         "masterNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('masterNSGName'))]",
@@ -325,7 +321,9 @@
         "agentFirstAddr": 20,
         "agentVMNamePrefix": "[concat(variables('orchestratorName'), '-agentVM-', variables('nameSuffix'), '-')]",
         "agentStorageAccountsCount": "[add(div(variables('agentCount'), variables('vmsPerStorageAccount')), mod(add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),2), add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),1)))]",
-        "agentsPerIPv4Octet": 200
+        "agentsPerIPv4Octet": 200,
+        "mesosScriptName": "configure-mesos-azurestack.sh",
+        "nginxScriptName": "nginx.conf"
     },
     "resources": [
         {
@@ -514,7 +512,7 @@
                 "typeHandlerVersion": "1.4",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[split(variables('jumpboxScriptLocation'), ' ')]",                    
+                    "fileUris": "[concat(parameters('configureScriptsRootLocation'), variables('jumpboxScriptName'))]",                    
                     "commandToExecute": "[concat(variables('jumpboxWindowsCustomScript'), variables('jumpboxHostnamefix'))]"
                 }
             }
@@ -670,7 +668,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
+                    "fileUris": "[[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName')), concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]]",
                     "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
                 }
             }
@@ -866,7 +864,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[split(parameters('configureMesosScriptLocation'), ' ')]",
+                    "fileUris": "[[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName')), concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]]",
                     "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
                 }
             }

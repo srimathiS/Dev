@@ -40,7 +40,6 @@ New-AzureRmResourceGroup -Name $RGName -Location $myLocation
 
 # Deploy Template 
 New-AzureRmResourceGroupDeployment `
-    -Name "myDeployment$myNum" `
     -ResourceGroupName $RGName `
     -TemplateFile $templateFile `
 	-TemplateParameterFile $templateParameterFile

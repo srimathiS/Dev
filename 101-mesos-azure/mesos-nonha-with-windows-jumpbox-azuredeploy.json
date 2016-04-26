@@ -37,36 +37,18 @@
                 "description": "Password for the Windows Jumpbox Virtual Machine."
             }
         },
-        "jumpboxEndpointDNSNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Sets the Domain name label for the jumpbox.  The concatenation of the domain name label and the regionalized DNS zone make up the fully qualified domain name associated with the public IP address."
-            }
-        },
-        "masterEndpointDNSNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Sets the Domain name label for the master IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
-            }
-        },
-        "agentEndpointDNSNamePrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "Sets the Domain name label for the agent pool IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
-            }
-        },
         "agentCount": {
             "type": "int",
             "defaultValue": 1,
             "metadata": {
-                "description": "The number of Mesos agents for the cluster.  This value can be from 1 to 100"
+            "description": "The number of Mesos agents for the cluster.  This value can be from 1 to 100"
             },
             "allowedValues": [
-                1,
-                2,
-                3,
-                4,
-                5
+            1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,
+            81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100
             ]
         },
         "masterCount": {
@@ -222,23 +204,12 @@
                 "description": "After installation, this specifies a script to download and install.  To disabled, set value to 'disabled'."
             }
         },
-        "configureMesosScriptLocation": {
+        "configureScriptsRootLocation": {
             "type": "string",
             "metadata": {
-                "description": "The scripts location for configuring mesos. spilt the uri's by space"
+                "description": "The root location for all the configuring scripts"
             },
-            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos-azure/parts/configure-mesos-cluster.sh https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos-azure/parts/nginx.conf"
-        },
-        "blobStorageEndpoint": {
-            "type": "string",
-            "defaultValue": "blob.core.windows.net",
-            "allowedValues": [
-                "blob.azurestack.local",
-                "blob.core.windows.net"
-            ],
-            "metadata": {
-                "description": "Blob storage endpoint"
-            }
+            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/"
         }
     },
     "variables": {
@@ -250,9 +221,9 @@
             "storage": "2015-05-01-preview",
             "compute": "2015-06-15"
         },
-        "jumpboxEndpointDNSNamePrefix": "[tolower(parameters('jumpboxEndpointDNSNamePrefix'))]",
-        "masterEndpointDNSNamePrefix": "[tolower(parameters('masterEndpointDNSNamePrefix'))]",
-        "agentEndpointDNSNamePrefix": "[tolower(parameters('agentEndpointDNSNamePrefix'))]",
+        "jumpboxEndpointDNSName": "[concat('jumpbox', variables('nameSuffix'))]",
+        "masterEndpointDNSName": "[concat('master', variables('nameSuffix'))]",
+        "agentEndpointDNSName": "[concat('agent', variables('nameSuffix'))]",
         "agentCount": "[parameters('agentCount')]",
         "masterCount": "[parameters('masterCount')]",
         "agentVMSize": "[parameters('agentVMSize')]",
@@ -269,7 +240,7 @@
         "vmsPerStorageAccount": "[parameters('vmsPerStorageAccount')]",
         "postInstallScriptURI": "[parameters('postInstallScriptURI')]",
 
-        "nameSuffix": "[parameters('nameSuffix')]",
+        "nameSuffix": "[tolower(parameters('nameSuffix'))]",
         "storageLocation": "[resourceGroup().location]",
 
         "sshKeyPath": "[concat('/home/', variables('adminUsername'), '/.ssh/authorized_keys')]",
@@ -352,8 +323,8 @@
         ],
         "storageAccountPrefixesCount": "[length(variables('storageAccountPrefixes'))]",
         "storageAccountBaseName": "[concat(variables('orchestratorName'), 'sa')]",
-        "masterStorageAccountName": "[concat(variables('storageAccountBaseName'),variables('masterEndpointDNSNamePrefix'))]",
-	    "agentStorageAccountName": "[concat(variables('storageAccountBaseName'),variables('agentEndpointDNSNamePrefix'))]",
+        "masterStorageAccountName": "[concat(variables('storageAccountBaseName'),'master', variables('nameSuffix'))]",
+        "agentStorageAccountName": "[concat(variables('storageAccountBaseName'),'agent', variables('nameSuffix'))]",
         "omsStorageAccount": "none",
         "omsStorageAccountKey": "none",
         "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddr'), ' ',variables('swarmEnabled'),' ',variables('marathonEnabled'),' ',variables('chronosEnabled'),' ',variables('omsStorageAccount'),' ',variables('omsStorageAccountKey'),' ', variables('adminUsername'),' ',variables('postInstallScriptURI'))]",
@@ -383,7 +354,9 @@
         "agentVMNamePrefix": "[concat(variables('orchestratorName'), '-agentVM-', variables('nameSuffix'), '-')]",
         "agentStorageAccountsCount": "[add(div(variables('agentCount'), variables('vmsPerStorageAccount')), mod(add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),2), add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),1)))]",
         "agentsPerIPv4Octet": 200,
-        "agentCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-cluster.sh ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"        
+        "agentCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-cluster.sh ',variables('clusterInstallParameters'),' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]",        
+        "mesosScriptName": "configure-mesos-cluster.sh",
+        "nginxScriptName": "nginx.conf"
     },
     "resources": [
         {
@@ -394,7 +367,7 @@
             "properties": {
                 "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[concat(variables('jumpboxEndpointDNSNamePrefix'), variables('nameSuffix'))]"
+                    "domainNameLabel": "[variables('jumpboxEndpointDNSName')]"
                 }
             }
         },
