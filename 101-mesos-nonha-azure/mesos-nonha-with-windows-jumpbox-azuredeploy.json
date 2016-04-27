@@ -480,7 +480,7 @@
                     "osDisk": {
                         "name": "[concat(variables('jumpboxVMName'),'-osdisk')]",
                         "vhd": {
-                            "uri": "[concat('http://', variables('masterStorageAccountName'), '.', parameters('blobStorageEndpoint'), '/vhds/', variables('jumpboxVMName'), '-osdisk.vhd')]"
+                           "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('masterStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vhds/', variables('jumpboxVMName'), '-osdisk.vhd')]"
                         },
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
@@ -601,7 +601,7 @@
                     "osDisk": {
                         "name": "[concat(variables('masterVMNamePrefix'), copyIndex(),'-osdisk')]",
                         "vhd": {
-                            "uri": "[concat('http://', variables('masterStorageAccountName'), '.', parameters('blobStorageEndpoint'), '/vhds/', variables('masterVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
+                            "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('masterStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vhds/', variables('masterVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
                         },
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
@@ -768,7 +768,7 @@
                     "osDisk": {
                         "name": "[concat(variables('agentVMNamePrefix'), copyIndex(),'-osdisk')]",
                         "vhd": {
-                            "uri": "[concat('http://',variables('storageAccountPrefixes')[mod(div(copyIndex(),variables('vmsPerStorageAccount')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(div(copyIndex(),variables('vmsPerStorageAccount')),variables('storageAccountPrefixesCount'))],variables('agentstorageAccountName'),add(1,div(copyIndex(),variables('vmsPerStorageAccount'))), '.', parameters('blobStorageEndpoint'), '/vhds/', variables('agentVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
+                            "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountPrefixes')[mod(div(copyIndex(),variables('vmsPerStorageAccount')),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(div(copyIndex(),variables('vmsPerStorageAccount')),variables('storageAccountPrefixesCount'))],variables('agentStorageAccountName'),add(1,div(copyIndex(),variables('vmsPerStorageAccount')))), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vhds/', variables('agentVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
                         },
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
