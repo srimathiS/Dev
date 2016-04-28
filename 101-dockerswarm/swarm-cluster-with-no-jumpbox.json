@@ -44,7 +44,16 @@
                 "description": "The number of swarm agents for the cluster.  This value can be from 1 to 100"
             },
             "allowedValues": [
-                1,2,3,4,5,6,7,8,9,10
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
             ]
         },
         "masterCount": {
@@ -297,17 +306,6 @@
         "jumpboxAddr": 4,
         "jumpboxVMName": "[concat('jumpboxVM-', variables('nameSuffix'))]",
         "jumpboxVMSize": "Standard_A1",
-
-        "jumpboxLinuxInstallParameters": "[concat(variables('adminUsername'), ' ', variables('masterCount'), ' ', variables('masterFirstAddr'))]",
-        "jumpboxLinuxCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash /opt/azure/containers/configure-ubuntu.sh ',variables('jumpboxLinuxInstallParameters'),' >> /var/log/azure/jumpbox-bootstrap.log 2>&1 &\" &')]",
-
-        "setBrowserFirstTabDefaultPrefix": "powershell.exe -ExecutionPolicy Unrestricted -command \"New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer' ; New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\BrowserEmulation' ; New-ItemProperty -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\BrowserEmulation' -Name IntranetCompatibilityMode -Value 0 -Type DWord; New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Main' ; New-ItemProperty -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Main' -Name 'Start Page' -Type String -Value http://",
-        "setBrowserFirstTabDefaultSuffix": "0:5050",
-        "DisableIeEsc": ";Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}' -Name IsInstalled -Value 0 -Force; Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}'  -Name IsInstalled -Value 0 -Force;\"",
-        "jumpboxWindowsCustomScript": "[concat(variables('setBrowserFirstTabDefaultPrefix'),variables('masterVMNamePrefix'),variables('setBrowserFirstTabDefaultSuffix'),variables('DisableIeEsc'))]",
-        "jumpboxScriptName": "hostnameResolution.ps1",
-        "jumpboxHostnameFix":  "[concat('powershell -ExecutionPolicy Unrestricted -file hostnameResolution.ps1', ' ', variables('masterVMNamePrefix'), ' ', variables('agentVMNamePrefix'), ' ', variables('masterFirstAddr'),' ', variables('agentFirstAddr'), ' ', parameters('masterCount'), ' ', parameters('agentCount'))]",
-
         "masterNSGName": "[concat(variables('orchestratorName'), '-master-nsg-', variables('nameSuffix'))]",
         "masterNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('masterNSGName'))]",
         "masterVMNamePrefix": "[concat(variables('orchestratorName'), '-masterVM-', variables('nameSuffix'), '-')]",
@@ -495,25 +493,6 @@
             }
         },
         {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('jumpboxVMName'),'/installcustomscript')]",
-            "apiVersion": "[variables('apiVersion').compute]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('jumpboxVMName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.4",
-                "autoUpgradeMinorVersion": "true",
-                "settings": {
-                    "fileUris": "[concat(parameters('configureScriptsRootLocation'), variables('jumpboxScriptName'))]",                    
-                    "commandToExecute": "[concat(variables('jumpboxWindowsCustomScript'), variables('jumpboxHostnamefix'))]"
-                }
-            }
-        },
-        {
             "apiVersion": "[variables('apiVersion').network]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('masterNSGName')]",
@@ -664,7 +643,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]",
+                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]" ],
                     "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-swarm-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
                 }
             }
@@ -860,7 +839,7 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]",
+                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]" ],
                     "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-swarm-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
                 }
             }
