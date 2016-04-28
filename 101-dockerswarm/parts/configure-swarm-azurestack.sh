@@ -247,11 +247,12 @@ swarm:
   volumes:
     - \"/etc/docker:/etc/docker\"
   restart: \"always\"
-" > /opt/azure/containers/docker-compose.yml
+  " > docker-compose.yml
+  #" > /opt/azure/containers/docker-compose.yml
 
-  pushd /opt/azure/containers/
+  #pushd /opt/azure/containers/
   docker-compose up -d
-  popd
+  #popd
   echo "completed starting docker swarm on the master"
 fi
 
@@ -260,11 +261,11 @@ if isagent ; then
   image: \"$SWARM_VERSION\"
   restart: \"always\"
   command: join --advertise=$HOSTADDR:2375 consul://$MASTER0IPADDR:8500/nodes
-" > /opt/azure/containers/docker-compose.yml
-
-  pushd /opt/azure/containers/
+" > docker-compose.yml
+#" > /opt/azure/containers/docker-compose.yml
+  #pushd /opt/azure/containers/
   docker-compose up -d
-  popd
+  #popd
   echo "completed starting docker swarm on the agent"
 fi
 
