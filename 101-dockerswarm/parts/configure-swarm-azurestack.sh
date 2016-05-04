@@ -26,11 +26,11 @@ MASTERPREFIX=${2}
 MASTERFIRSTADDR=${3}
 AZUREUSER=${4}
 POSTINSTALLSCRIPTURI=${5}
-PrivateIP=${6}
+BASESUBNET=${6}
+PrivateIP=${7}
 VMNAME=`hostname`
 VMNUMBER=`echo $VMNAME | sed 's/.*[^0-9]\([0-9]\+\)*$/\1/'`
 VMPREFIX=`echo $VMNAME | sed 's/\(.*[^0-9]\)*[0-9]\+$/\1/'`
-BASESUBNET="10.0.0."
 
 echo "Master Count: $MASTERCOUNT"
 echo "Master Prefix: $MASTERPREFIX"

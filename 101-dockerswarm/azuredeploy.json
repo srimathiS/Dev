@@ -229,6 +229,7 @@
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
         "addressPrefix": "10.0.0.0/16",
         "subnetPrefix": "10.0.0.0/18",
+        "baseSubnet": "[split(variables('subnetPrefix'),'0/18')[0]]",
         "storageAccountType": "Standard_LRS",
         "storageAccountPrefixes": [
             "0",
@@ -274,7 +275,7 @@
         "agentStorageAccountName": "[concat(variables('storageAccountBaseName'),'agent', variables('nameSuffix'))]",
         "omsStorageAccount": "none",
         "omsStorageAccountKey": "none",
-        "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddr'), ' ',variables('adminUsername'),' ',variables('postInstallScriptURI'))]",
+        "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddr'), ' ',variables('adminUsername'),' ',variables('postInstallScriptURI'), ' ', variables('baseSubnet'))]",
         "jumpboxNSGName": "[concat(variables('orchestratorName'), '-jumpbox-nsg-', variables('nameSuffix'))]",
         "jumpboxNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('jumpboxNSGName'))]",
         "jumpboxAddr": 4,
@@ -411,7 +412,7 @@
                         "name": "ipConfig",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[concat(split(variables('subnetPrefix'),'0/18')[0], variables('jumpboxAddr'))]",
+                            "privateIPAddress": "[concat(variables('baseSubnet'), variables('jumpboxAddr'))]",
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('jumpboxPublicIPAddressName'))]"
                             },
@@ -429,7 +430,7 @@
             "name": "[variables('jumpboxVMName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
                 "[variables('masterStorageAccountName')]"
             ],
             "properties": {
@@ -542,7 +543,7 @@
                         "name": "ipConfigNode",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[concat(split(variables('subnetPrefix'),'0/18')[0], copyIndex(variables('masterFirstAddr')))]",
+                            "privateIPAddress": "[concat(variables('baseSubnet'), copyIndex(variables('masterFirstAddr')))]",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             }

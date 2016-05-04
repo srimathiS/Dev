@@ -445,7 +445,7 @@
             "name": "[variables('jumpboxVMName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
                 "[variables('masterStorageAccountName')]"
             ],
             "properties": {
