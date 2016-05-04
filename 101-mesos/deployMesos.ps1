@@ -32,7 +32,7 @@ $myNum = "001" #Modify this per deployment
 $RGName = "myRG$myNum"
 $myLocation = "local"
 
-$templateFile= "mesos-with-windows-jumpbox-azurestack-deploy.json"
+$templateFile= "azuredeploy.json"
 $templateParameterFile= "azuredeploy.parameters.json"
 
 # Create Resource Group for Template Deployment

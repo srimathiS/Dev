@@ -37,24 +37,26 @@
                 "description": "Password for the Windows Jumpbox Virtual Machine."
             }
         },
+        "agentVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_A1",
+            "metadata": {
+                "description": "The size of the Agent Virtual Machine. Ex: Standard_XX where XX can A1, A2, A3 etc"
+            }
+        },
         "agentCount": {
             "type": "int",
             "defaultValue": 1,
             "metadata": {
-                "description": "The number of swarm agents for the cluster.  This value can be from 1 to 100"
-            },
-            "allowedValues": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
-            ]
+                "description": "The number of Mesos agents for the cluster.  This value can be from 1 to 100"
+            }
+        },
+        "masterVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_A2",
+            "metadata": {
+                "description": "The size of the Master Virtual Machine.Ex: Standard_XX where XX can A1, A2, A3 etc"
+            }
         },
         "masterCount": {
             "type": "int",
@@ -65,35 +67,7 @@
                 5
             ],
             "metadata": {
-                "description": "The number of swarm masters for the cluster."
-            }
-        },
-        "agentVMSize": {
-            "type": "string",
-            "defaultValue": "Standard_A1",
-            "allowedValues": [
-                "Standard_A0",
-                "Standard_A1",
-                "Standard_A2",
-                "Standard_A3",
-                "Standard_A4"
-            ],
-            "metadata": {
-                "description": "The size of the Agent Virtual Machine."
-            }
-        },
-        "masterVMSize": {
-            "type": "string",
-            "defaultValue": "Standard_A1",
-            "allowedValues": [
-                "Standard_A0",
-                "Standard_A1",
-                "Standard_A2",
-                "Standard_A3",
-                "Standard_A4"
-            ],
-            "metadata": {
-                "description": "The size of the Master Virtual Machine."
+                "description": "The number of Mesos masters for the cluster."
             }
         },
         "linuxPublisher": {
@@ -186,7 +160,7 @@
             "metadata": {
                 "description": "The root location for all the configuring scripts"
             },
-            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-dockerswarm/parts/"
+            "defaultValue": "https://raw.githubusercontent.com/srimathiS/Dev/master/101-mesos/parts/"
         }
     },
     "variables": {
@@ -239,11 +213,14 @@
         ],
         "linuxConfiguration": "[variables('linuxConfigurations')[variables('setLinuxConfigurationForVMCreate')]]",
 
-        "orchestratorName": "swarm",
+        "orchestratorName": "mesos",
 
 
         "jumpboxPublicIPAddressName": "[concat(variables('orchestratorName'), '-jumpbox-ip-', '-', variables('nameSuffix'))]",
-        "swarmEnabled": true,
+
+        "marathonEnabled": true,
+        "chronosEnabled": true,
+        "swarmEnabled": false,
         "osImagePublisher": "[variables('linuxPublisher')]",
         "osImageOffer": "[variables('linuxOffer')]",
         "osImageSKU": "[variables('linuxSku')]",
@@ -252,9 +229,10 @@
         "virtualNetworkName": "[concat(variables('orchestratorName'), '-vnet-', variables('nameSuffix'))]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetName": "[concat(variables('orchestratorName'), '-subnet')]",
-        "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",        
         "addressPrefix": "10.0.0.0/16",
         "subnetPrefix": "10.0.0.0/18",
+        "baseSubnet": "[split(variables('subnetPrefix'),'0/18')[0]]",
         "storageAccountType": "Standard_LRS",
         "storageAccountPrefixes": [
             "0",
@@ -300,12 +278,23 @@
         "agentStorageAccountName": "[concat(variables('storageAccountBaseName'),'agent', variables('nameSuffix'))]",
         "omsStorageAccount": "none",
         "omsStorageAccountKey": "none",
-        "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddr'), ' ',variables('adminUsername'),' ',variables('postInstallScriptURI'))]",
+        "clusterInstallParameters": "[concat(variables('masterCount'), ' ',variables('masterVMNamePrefix'), ' ',variables('masterFirstAddr'), ' ',variables('swarmEnabled'),' ',variables('marathonEnabled'),' ',variables('chronosEnabled'),' ',variables('omsStorageAccount'),' ',variables('omsStorageAccountKey'),' ', variables('adminUsername'),' ',variables('postInstallScriptURI'), ' ', variables('baseSubnet'))]",
         "jumpboxNSGName": "[concat(variables('orchestratorName'), '-jumpbox-nsg-', variables('nameSuffix'))]",
         "jumpboxNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('jumpboxNSGName'))]",
         "jumpboxAddr": 4,
         "jumpboxVMName": "[concat('jumpboxVM-', variables('nameSuffix'))]",
         "jumpboxVMSize": "Standard_A1",
+
+        "jumpboxLinuxInstallParameters": "[concat(variables('adminUsername'), ' ', variables('masterCount'), ' ', variables('masterFirstAddr'), ' ', variables('baseSubnet'))]",
+        "jumpboxLinuxCustomScript": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash /opt/azure/containers/configure-ubuntu.sh ',variables('jumpboxLinuxInstallParameters'),' >> /var/log/azure/jumpbox-bootstrap.log 2>&1 &\" &')]",
+
+        "setBrowserFirstTabDefaultPrefix": "powershell.exe -ExecutionPolicy Unrestricted -command \"New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer' ; New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\BrowserEmulation' ; New-ItemProperty -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\BrowserEmulation' -Name IntranetCompatibilityMode -Value 0 -Type DWord; New-Item -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Main' ; New-ItemProperty -Path HKLM:'\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Main' -Name 'Start Page' -Type String -Value http://",
+        "setBrowserFirstTabDefaultSuffix": "0:5050",
+        "DisableIeEsc": ";Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}' -Name IsInstalled -Value 0 -Force; Set-ItemProperty -Path HKLM:'\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}'  -Name IsInstalled -Value 0 -Force;\"",
+        "jumpboxWindowsCustomScript": "[concat(variables('setBrowserFirstTabDefaultPrefix'),variables('masterVMNamePrefix'),variables('setBrowserFirstTabDefaultSuffix'),variables('DisableIeEsc'))]",
+        "jumpboxScriptName": "hostnameResolution.ps1",
+        "jumpboxHostnameFix": "[concat('powershell -ExecutionPolicy Unrestricted -file hostnameResolution.ps1', ' ', variables('masterVMNamePrefix'), ' ', variables('agentVMNamePrefix'), ' ', variables('masterFirstAddr'),' ', variables('agentFirstAddr'), ' ', parameters('masterCount'), ' ', parameters('agentCount'), ' ', variables('baseSubnet'))]",
+
         "masterNSGName": "[concat(variables('orchestratorName'), '-master-nsg-', variables('nameSuffix'))]",
         "masterNSGID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('masterNSGName'))]",
         "masterVMNamePrefix": "[concat(variables('orchestratorName'), '-masterVM-', variables('nameSuffix'), '-')]",
@@ -317,9 +306,43 @@
         "agentVMNamePrefix": "[concat(variables('orchestratorName'), '-agentVM-', variables('nameSuffix'), '-')]",
         "agentStorageAccountsCount": "[add(div(variables('agentCount'), variables('vmsPerStorageAccount')), mod(add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),2), add(mod(variables('agentCount'), variables('vmsPerStorageAccount')),1)))]",
         "agentsPerIPv4Octet": 200,
-        "swarmScriptName": "configure-swarm-azurestack.sh"
+        "mesosScriptName": "configure-mesos-azurestack.sh",
+        "nginxScriptName": "nginx.conf"
     },
     "resources": [
+        {
+            "apiVersion": "[variables('apiVersion').network]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('addressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnetPrefix')]"
+                        }
+                    }
+                ],
+                "dhcpOptions": {
+                    "dnsServers": [ "[variables('azureStackDNSIP')]" ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('masterStorageAccountName')]",
+            "apiVersion": "[variables('apiVersion').storage]",
+            "location": "[variables('storageLocation')]",
+            "properties": {
+                "accountType": "[variables('storageAccountType')]"
+            }
+        },
         {
             "apiVersion": "[variables('apiVersion').network]",
             "type": "Microsoft.Network/publicIPAddresses",
@@ -388,7 +411,7 @@
             "name": "[concat(variables('jumpboxVMName'), '-nic')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('jumpboxPublicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumpboxPublicIPAddressName'))]",
                 "[variables('vnetID')]",
                 "[variables('jumpboxNSGID')]"
             ],
@@ -404,7 +427,7 @@
                         "name": "ipConfig",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[concat(split(variables('subnetPrefix'),'0/18')[0], variables('jumpboxAddr'))]",
+                            "privateIPAddress": "[concat(variables('baseSubnet'), variables('jumpboxAddr'))]",
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('jumpboxPublicIPAddressName'))]"
                             },
@@ -417,45 +440,12 @@
             }
         },
         {
-            "apiVersion": "[variables('apiVersion').network]",
-            "type": "Microsoft.Network/virtualNetworks",
-            "name": "[variables('virtualNetworkName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[variables('addressPrefix')]"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('subnetName')]",
-                        "properties": {
-                            "addressPrefix": "[variables('subnetPrefix')]"
-                        }
-                    }
-                ],
-                "dhcpOptions": {
-                    "dnsServers": [ "[variables('azureStackDNSIP')]" ]
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('masterStorageAccountName')]",
-            "apiVersion": "[variables('apiVersion').storage]",
-            "location": "[variables('storageLocation')]",
-            "properties": {
-                "accountType": "[variables('storageAccountType')]"
-            }
-        },
-        {
             "apiVersion": "[variables('apiVersion').compute]",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('jumpboxVMName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
+                "[resourceId('Microsoft.Network/networkInterfaces/', variables('jumpboxVMName'), '-nic')]",
                 "[variables('masterStorageAccountName')]"
             ],
             "properties": {
@@ -489,6 +479,25 @@
                             "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('jumpboxVMName'), '-nic'))]"
                         }
                     ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('jumpboxVMName'),'/installcustomscript')]",
+            "apiVersion": "[variables('apiVersion').compute]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('jumpboxVMName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.4",
+                "autoUpgradeMinorVersion": "true",
+                "settings": {
+                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('jumpboxScriptName'))]" ],
+                    "commandToExecute": "[concat(variables('jumpboxWindowsCustomScript'), variables('jumpboxHostnamefix'))]"
                 }
             }
         },
@@ -568,7 +577,7 @@
                         "name": "ipConfigNode",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[concat(split(variables('subnetPrefix'),'0/18')[0], copyIndex(variables('masterFirstAddr')))]",
+                            "privateIPAddress": "[concat(variables('baseSubnet'), copyIndex(variables('masterFirstAddr')))]",
                             "subnet": {
                                 "id": "[variables('subnetRef')]"
                             }
@@ -643,8 +652,8 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]" ],
-                    "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-swarm-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
+                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName'))]", "[concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]" ],
+                    "commandToExecute": "[concat('/bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('masterVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress ,' >> /var/log/azure/cluster-bootstrap.log 2>&1\"')]"
                 }
             }
         },
@@ -839,8 +848,8 @@
                 "typeHandlerVersion": "1.3",
                 "autoUpgradeMinorVersion": "true",
                 "settings": {
-                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('swarmScriptName'))]" ],
-                    "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-swarm-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
+                    "fileUris": [ "[concat(parameters('configureScriptsRootLocation'), variables('mesosScriptName'))]", "[concat(parameters('configureScriptsRootLocation'), variables('nginxScriptName'))]" ],
+                    "commandToExecute": "[concat('/usr/bin/nohup /bin/bash -c \"/bin/bash configure-mesos-azurestack.sh ', variables('clusterInstallParameters'),' ', reference(concat(variables('agentVMNamePrefix'), 'nic-', copyIndex()), '2015-05-01-preview').ipConfigurations[0].properties.privateIPAddress,' >> /var/log/azure/cluster-bootstrap.log 2>&1 &\" &')]"
                 }
             }
         }

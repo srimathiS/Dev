@@ -16,15 +16,17 @@
         [Int]$masterCount=1,
 
         [Parameter(Mandatory)]
-        [Int]$agentCount=1
+        [Int]$agentCount=1,
+
+		[Parameter(Mandatory)]
+        [String]$baseSubnet
     ) 
     
-    $hostsfilePath = "C:\Windows\System32\drivers\etc\hosts"
-    $baseSubnet="10.0.0."
+    $hostsfilePath = "$env:SystemRoot\System32\drivers\etc\hosts"    
 
     For ($i=0; $i -lt $masterCount; $i++)
     {    
-       $masterIp= $baseSubnet + $masterFirstAddr
+       $masterIp= "$baseSubnet$masterFirstAddr"
        $masterHostname = $masterVMNamePrefix + $i
        Write-Output "Adding $masterIp $masterHostname to /etc/hosts file"
        $masterIp + "`t`t" + $masterHostname | Out-File -encoding ASCII -append $hostsfilePath

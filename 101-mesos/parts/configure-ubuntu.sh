@@ -16,7 +16,7 @@ MASTERFIRSTADDR=$3
 PrivateIP=${4}
 HOMEDIR="/home/$AZUREUSER"
 VMNAME=`hostname`
-BASESUBNET="10.0.0."
+BASESUBNET=$5
 echo "User: $AZUREUSER"
 echo "User home dir: $HOMEDIR"
 echo "vmname: $VMNAME"

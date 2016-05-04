@@ -31,12 +31,12 @@ ACCOUNTKEY=${8}
 set -x
 AZUREUSER=${9}
 POSTINSTALLSCRIPTURI=${10}
-PrivateIP=${11}
+BASESUBNET=${11}
+PrivateIP=${12}
 HOMEDIR="/home/$AZUREUSER"
 VMNAME=`hostname`
 VMNUMBER=`echo $VMNAME | sed 's/.*[^0-9]\([0-9]\+\)*$/\1/'`
 VMPREFIX=`echo $VMNAME | sed 's/\(.*[^0-9]\)*[0-9]\+$/\1/'`
-BASESUBNET="10.0.0."
 
 
 echo "Master Count: $MASTERCOUNT"

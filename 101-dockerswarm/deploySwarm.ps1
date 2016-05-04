@@ -32,7 +32,7 @@ $myNum = "001" #Modify this per deployment
 $RGName = "myRG$myNum"
 $myLocation = "local"
 
-$templateFile= "swarm-with-windows-jumpbox-azuredeploy.json"
+$templateFile= "azuredeploy.json"
 $templateParameterFile= "azuredeploy.parameters.json"
 
 # Create Resource Group for Template Deployment
