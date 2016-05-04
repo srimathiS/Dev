@@ -396,7 +396,7 @@
             "name": "[concat(variables('jumpboxVMName'), '-nic')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('jumpboxPublicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses',variables('jumpboxPublicIPAddressName'))]",
                 "[variables('vnetID')]",
                 "[variables('jumpboxNSGID')]"
             ],
