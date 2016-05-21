@@ -10,16 +10,16 @@
             "value": "GEN-PASSWORD"
         },
 
-        "imagePulbisher": {
-            "value": "Suse"
+        "imagePublisher": {
+            "value": "Canonical"
         },
 
         "imageOffer": {
-            "value": "SlesServer"
+            "value": "UbuntuServer"
         },
 
         "imageSku": {
-            "value": "12SP1"
+            "value": "15.10"
         }
     }
 }

@@ -1,9 +1,9 @@
-# [IaaS Linux VM Comprehensive Resources]
+# [IaaS Linux VM]
 
 <a href="http://armviz.io/#/?load=https://raw.githubusercontent.com/Azure/azurestack-quickstart-templates/master/101-simple-linux-vm/azuredeploy.json" target="_blank">
   <img src="http://armviz.io/visualizebutton.png"/>
 </a>
-This template deploys a Linux VM and also uses customscript, VMLinuxAccess and Docker Extensions
+This template deploys a simple Linux VM such as ubuntu 15.10, sles 12 SP1 , CentOS 67
 
 `Tags: [Tag1, Tag2, Tag3]`
 
@@ -13,8 +13,12 @@ This template deploys a Linux VM and also uses customscript, VMLinuxAccess and D
 
 ## Prerequisites
 
-Follow the below links to create an Ubuntu Image and upload the same to Azure Stack's Platform Image Repository
-1. https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-create-upload-ubuntu/ 
+Follow the below links to create a Linux Image and upload the same to Azure Stack's Platform Image Repository
+1. https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-classic-create-upload-vhd/
+	Supported in Azure Stack TP1 are 
+	https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-create-upload-centos/
+	https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-suse-create-upload-vhd/
+	https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-create-upload-ubuntu/
 2. https://azure.microsoft.com/en-us/documentation/articles/azure-stack-add-image-pir/
 
 ## Deployment steps
@@ -65,7 +69,9 @@ New-AzureRmResourceGroupDeployment `
     -TemplateFile "azuredeploy.json" `
     -adminUsername "admin" `
     -adminPassword ("GEN-PASSWORD" | ConvertTo-SecureString -AsPlainText -Force)`
-    -ubuntuOSVersion "15.10" `
+    -imagePublisher "Canonical" `
+	-imageOffer "UbuntuServer" `
+	-imageSku "15.10" `
 ```
 
 

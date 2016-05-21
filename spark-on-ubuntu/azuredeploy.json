@@ -30,7 +30,7 @@
     },
     "imageSKU": {
       "type": "string",
-      "defaultValue": "14.04.2-LTS",
+      "defaultValue": "14.04.3-LTS",
       "metadata": {
         "description": "Image SKU"
       }
@@ -39,13 +39,6 @@
       "type": "string",
       "metadata": {
         "description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
-      }
-    },
-    "region": {
-      "type": "string",
-      "defaultValue": "West US",
-      "metadata": {
-        "description": "Location where resources will be provisioned"
       }
     },
     "virtualNetworkName": {
@@ -134,16 +127,22 @@
   "variables": {
     "vmStorageAccountContainerName": "vhd",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
+    "apiVersion": {
+            "resources": { "deployments": "2015-01-01" },
+            "network": "2015-05-01-preview",
+            "storage": "2015-05-01-preview",
+            "compute": "2015-06-15"
+        },
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
     "computerNamePrefix": "sparknode",
-    "scriptUrl": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/spark-on-ubuntu/",
+    "scriptUrl": "https://raw.githubusercontent.com/srimathiS/Dev/master/spark-on-ubuntu/",
     "templateUrl": "[variables('scriptUrl')]",
     "sharedTemplateName": "shared-resources",
     "jumpboxTemplateName": "jumpbox-resources-",
     "tshirtSizeS": {
       "numberOfMasterInstances": 1,
       "numberOfSlavesInstances": 1,
-      "vmSize": "Standard_A2"
+      "vmSize": "Standard_A1"
     },
     "tshirtSizeM": {
       "numberOfMasterInstances": 1,
@@ -171,9 +170,6 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "region": {
-            "value": "[parameters('region')]"
-          },
           "storageAccountName": {
             "value": "[parameters('storageAccountName')]"
           },
@@ -206,9 +202,6 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "region": {
-            "value": "[parameters('region')]"
-          },
           "virtualNetworkName": {
             "value": "[parameters('virtualNetworkName')]"
           },
@@ -231,10 +224,10 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat('nic', copyindex())]",
-      "location": "[parameters('region')]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "nicLoop",
         "count": "[variables('numberOfMasterInstances')]"
@@ -258,10 +251,10 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat('nicsl', copyindex())]",
-      "location": "[parameters('region')]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "nicslLoop",
         "count": "[variables('numberOfSlavesInstances')]"
@@ -285,10 +278,10 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat('mastervm', copyindex())]",
-      "location": "[parameters('region')]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "virtualMachineLoopMaster",
         "count": "[variables('numberOfMasterInstances')]"
@@ -338,10 +331,10 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat('slavevm', copyindex())]",
-      "location": "[parameters('region')]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "virtualMachineLoop",
         "count": "[variables('numberOfSlavesInstances')]"
@@ -394,8 +387,8 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat('mastervm', copyindex(), '/installsparkmaster')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('region')]",
+      "apiVersion": "[variables('apiVersion').compute]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "virtualMachineExtensionsLoopMaster",
         "count": "[variables('numberOfMasterInstances')]"
@@ -420,7 +413,7 @@
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat('slavevm', copyindex(), '/installsparkslave')]",
       "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('region')]",
+      "location": "[resourceGroup().location]",
       "copy": {
         "name": "virtualMachineExtensionsLoopSlave",
         "count": "[variables('numberOfSlavesInstances')]"
