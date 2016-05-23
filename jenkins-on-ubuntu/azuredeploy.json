@@ -14,13 +14,6 @@
         "description": "Administrator password used when provisioning virtual machines"
       }
     },
-    "masterNodes": {
-      "type": "int",
-      "defaultValue": 1,
-      "metadata": {
-        "description": "Number of Jenkins Master node (1 is the default)"
-      }
-    },
     "masterVmSize": {
       "type": "string",     
       "metadata": {
@@ -120,16 +113,12 @@
       }
     },
     {      
-      "name": "[concat('jenkMasterNode', copyindex())]",
+      "name": "jenkMasterNode",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
             "[concat('Microsoft.Resources/deployments/', 'shared')]"
         ],
-      "copy": {
-        "name": "vmLoop",
-        "count": "[parameters('masterNodes')]"
-      },
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -153,7 +142,7 @@
             "value": "[variables('namespace')]"
           },
           "vmbasename": {
-            "value": "[concat('Master', copyindex())]"
+            "value": "Master"
           },
           "subnet": {
             "value": "[variables('networkSettings').subnet.dse]"
