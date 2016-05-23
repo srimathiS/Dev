@@ -31,22 +31,26 @@
     }
   },
   "variables": {
-    "subnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('subnet').vnet), '/subnets/', parameters('subnet').name)]"
-  },
-  "resources": [
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[concat(parameters('namespace'), 'set')]",
-      "location": "[resourceGroup().location]",
-      "properties": {}
+    "subnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('subnet').vnet), '/subnets/', parameters('subnet').name)]",
+    "apiVersion": {
+        "resources": { "deployments": "2015-01-01" },
+        "network": "2015-05-01-preview",
+        "storage": "2015-05-01-preview",
+        "compute": "2015-06-15"
     },
+    "azureStackDNSIP": "192.168.100.2",
+    "vmStorageAccountContainerName": "vhds"
+  },
+  "resources": [   
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(parameters('namespace'), parameters('vmbasename'), 'nic')]",
       "location": "[resourceGroup().location]",
       "properties": {
+        "dnsSettings": {
+            "dnsServers": [ "[ variables('azureStackDNSIP')]" ]
+        },
         "ipConfigurations": [
           {
             "name": "ipconfig1",
@@ -61,7 +65,7 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(parameters('namespace'), concat(parameters('vmbasename'), 'vm'))]",
       "location": "[resourceGroup().location]",
@@ -82,7 +86,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://', parameters('storageAccountName'),'.blob.core.windows.net/vhds/', parameters('vmbasename'), '-osdisk.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', parameters('vmbasename'), '-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -100,7 +104,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(parameters('namespace'), parameters('vmbasename'), 'vm', '/jenkInstall')]",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('namespace'), parameters('vmbasename'), 'vm')]",
@@ -109,7 +113,8 @@
       "properties": {
         "publisher": "Microsoft.OSTCExtensions",
         "type": "CustomScriptForLinux",
-        "typeHandlerVersion": "1.2",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": "true",
         "settings": {
           "fileUris": "[parameters('osSettings').scripts]",
           "commandToExecute": "[concat('bash jenkSlaveInstall.sh -m ', parameters('masterNode'), ' -s ', parameters('vmbasename') )]"

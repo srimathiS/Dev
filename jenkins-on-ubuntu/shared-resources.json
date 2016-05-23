@@ -15,10 +15,18 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "apiVersion": {
+        "resources": { "deployments": "2015-01-01" },
+        "network": "2015-05-01-preview",
+        "storage": "2015-05-01-preview",
+        "compute": "2015-06-15"
+    },
+    "azureStackDNSIP": "192.168.100.2"
+  },
   "resources": [
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').storage]",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('storageAccountName')]",
       "location": "[resourceGroup().location]",
@@ -27,7 +35,7 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('networkSettings').virtualNetworkName]",
       "location": "[resourceGroup().location]",
@@ -44,7 +52,10 @@
               "addressPrefix": "[parameters('networkSettings').subnet.dse.prefix]"
             }
           }
-        ]
+        ],
+        "dhcpOptions": {
+            "dnsServers": [ "[variables('azureStackDNSIP')]" ]
+        }
       }
     }
   ]

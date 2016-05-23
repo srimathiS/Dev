@@ -28,9 +28,16 @@
       }
     },
     "dnsName": {
-      "type": "string",
+        "type": "string",
+        "metadata": {
+            "description": "Domain name for the publicly accessible Jenkins master node"
+        }
+    },
+    "masterNodes": {
+      "type": "int",
+      "defaultValue": 1,
       "metadata": {
-        "description": "Domain name for the publicly accessible Jenkins master node"
+        "description": "Number of Jenkins Master node (1 is the default)"
       }
     },
     "masterVmSize": {
@@ -91,8 +98,8 @@
       "imageReference": {
         "publisher": "Canonical",
         "offer": "UbuntuServer",
-        "sku": "14.04.2-LTS",
-        "version": "14.04.201503090"
+        "sku": "14.04.3-LTS",
+        "version": "Latest"
       },
       "scripts": [
         "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkMstrInstall.sh",
@@ -103,14 +110,21 @@
       "imageReference": {
         "publisher": "Canonical",
         "offer": "UbuntuServer",
-        "sku": "14.04.2-LTS",
-        "version": "14.04.201503090"
+        "sku": "14.04.3-LTS",
+        "version": "Latest"
       },
       "scripts": [
         "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkSlaveInstall.sh"
       ]
     },
-    "sharedStorageAccountName": "[parameters('storageAccountPrefix')]"
+    "sharedStorageAccountName": "[parameters('storageAccountPrefix')]",
+    "apiVersion": {
+        "resources": { "deployments": "2015-01-01" },
+        "network": "2015-05-01-preview",
+        "storage": "2015-05-01-preview",
+        "compute": "2015-06-15"
+    },
+    "azureStackDNSIP": "192.168.100.2"
   },
   "resources": [
     {
@@ -133,13 +147,17 @@
         }
       }
     },
-    {
-      "name": "jenkMasterNode",
+    {      
+      "name": "[concat('jenkMasterNode', copyindex())]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared')]"
-      ],
+            "[concat('Microsoft.Resources/deployments/', 'shared')]"
+        ],
+      "copy": {
+        "name": "vmLoop",
+        "count": "[parameters('masterNodes')]"
+      },
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -163,7 +181,7 @@
             "value": "[variables('namespace')]"
           },
           "vmbasename": {
-            "value": "Master"
+            "value": "[concat('Master', copyindex())]"
           },
           "subnet": {
             "value": "[variables('networkSettings').subnet.dse]"
