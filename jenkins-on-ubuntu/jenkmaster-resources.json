@@ -123,12 +123,6 @@
             "properties": {}
         },
         {
-            "apiVersion": "[variables('apiVersion').compute]",
-            "name": "[concat(parameters('namespace'), 'set')]",
-            "location": "[resourceGroup().location]",
-            "properties": { }
-        },
-        {
             "apiVersion": "[variables('apiVersion').network]",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(parameters('namespace'), concat(parameters('vmbasename'), 'nic'))]",

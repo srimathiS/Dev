@@ -66,8 +66,8 @@
         "version": "Latest"
       },
       "scripts": [
-        "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkMstrInstall.sh",
-        "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkAddNode.groovy"
+        "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/jenkMstrInstall.sh",
+        "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/jenkAddNode.groovy"
       ]
     },
     "slaveOsSettings": {
@@ -78,7 +78,7 @@
         "version": "Latest"
       },
       "scripts": [
-        "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkSlaveInstall.sh"
+        "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/jenkSlaveInstall.sh"
       ]
     },
     "sharedStorageAccountName": "[concat('sa', resourcegroup().name)]",
