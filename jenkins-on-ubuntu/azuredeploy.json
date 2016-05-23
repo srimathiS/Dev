@@ -2,19 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "storageAccountPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
-      }
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "defaultValue": "myVNET",
-      "metadata": {
-        "description": "Name of the virtual network provisioned for the cluster"
-      }
-    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -27,12 +14,6 @@
         "description": "Administrator password used when provisioning virtual machines"
       }
     },
-    "dnsName": {
-        "type": "string",
-        "metadata": {
-            "description": "Domain name for the publicly accessible Jenkins master node"
-        }
-    },
     "masterNodes": {
       "type": "int",
       "defaultValue": 1,
@@ -41,14 +22,9 @@
       }
     },
     "masterVmSize": {
-      "type": "string",
-      "defaultValue": "Standard_D3",
-      "allowedValues": [
-        "Standard_D3",
-        "Standard_D4"
-      ],
+      "type": "string",     
       "metadata": {
-        "description": "The size of the virtual machines used when provisioning the Jenkins master node"
+        "description": "The size of the virtual machines used when provisioning the Jenkins master node eg: Standard_A1"
       }
     },
     "slaveNodes": {
@@ -60,30 +36,25 @@
     },
     "slaveVmSize": {
       "type": "string",
-      "defaultValue": "Standard_D3",
-      "allowedValues": [
-        "Standard_D3",
-        "Standard_D4"
-      ],
       "metadata": {
-        "description": "The size of the virtual machines used when provisioning Jenkins slave node(s)"
+        "description": "The size of the virtual machines used when provisioning Jenkins slave node(s)eg: Standard_A1"
       }
     }
   },
   "variables": {
-    "templateBaseUrl": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/",
+    "templateBaseUrl": "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/",
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
     "jenkMasterTemplateUrl": "[concat(variables('templateBaseUrl'), 'jenkmaster-resources.json')]",
     "jenkSlaveTemplateUrl": "[concat(variables('templateBaseUrl'), 'jenkslave-resources.json')]",
     "namespace": "jenk",
     "networkSettings": {
-      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "virtualNetworkName": "[concat('vnet',resourcegroup().name)]",
       "addressPrefix": "10.0.0.0/16",
       "subnet": {
         "dse": {
           "name": "dse",
           "prefix": "10.0.0.0/24",
-          "vnet": "[parameters('virtualNetworkName')]"
+          "vnet": "[concat('vnet',resourcegroup().name)]"
         }
       },
       "statics": {
@@ -117,14 +88,15 @@
         "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/jenkins-on-ubuntu/jenkSlaveInstall.sh"
       ]
     },
-    "sharedStorageAccountName": "[parameters('storageAccountPrefix')]",
+    "sharedStorageAccountName": "[concat('sa', resourcegroup().name)]",
     "apiVersion": {
         "resources": { "deployments": "2015-01-01" },
         "network": "2015-05-01-preview",
         "storage": "2015-05-01-preview",
         "compute": "2015-06-15"
     },
-    "azureStackDNSIP": "192.168.100.2"
+    "azureStackDNSIP": "192.168.100.2",
+    "dnsname": "[concat('dns', resourceGroup().name)]"
   },
   "resources": [
     {
@@ -187,7 +159,7 @@
             "value": "[variables('networkSettings').subnet.dse]"
           },
           "dnsname": {
-            "value": "[parameters('dnsName')]"
+            "value": "[variables('dnsName')]"
           },
           "staticIp": {
             "value": "[variables('networkSettings').statics.jenkMaster]"
