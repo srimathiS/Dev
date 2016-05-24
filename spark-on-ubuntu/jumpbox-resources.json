@@ -58,7 +58,7 @@
     },
     "imageSKU": {
       "type": "string",
-      "defaultValue": "14.04.2-LTS",
+      "defaultValue": "14.04.3-LTS",
       "metadata": {
         "Description": "Image SKU"
       }
@@ -72,15 +72,19 @@
   },
   "variables": {
     "vmStorageAccountContainerName": "vhd",
-    "vmSourceImageName": "b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_2_LTS-amd64-server-20150309-en-us-30GB",
-    "sourceImageName": "[concat('/',subscription().subscriptionId,'/services/images/',variables('vmSourceImageName'))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
-    "vmSize": "Standard_A0"
+    "vmSize": "Standard_A1",
+    "apiVersion": {
+            "resources": { "deployments": "2015-01-01" },
+            "network": "2015-05-01-preview",
+            "storage": "2015-05-01-preview",
+            "compute": "2015-06-15"
+        },
   },
   "resources": [
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "publicIP",
       "location": "[resourceGroup().location]",
@@ -143,7 +147,7 @@
           "osDisk": {
             "name": "osdiskjumpbox",
             "vhd": {
-              "uri": "[concat('https://',parameters('storageAccountName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/','osdiskjumpbox.vhd')]"
+                "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/', 'osdiskjumpbox.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

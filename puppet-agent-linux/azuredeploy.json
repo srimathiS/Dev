@@ -6,8 +6,7 @@
             "type": "string",
             "metadata": {
                 "description": "Size of vm, e.g: Standard_A1"
-            },
-            "defaultValue": "Standard_A2"
+            }
         },
         "username": {
             "type": "string",
@@ -21,26 +20,23 @@
                 "description": "Password for the Virtual Machine."
             }
         },
-        "pupmstrFQDN": {
+        "pupmasterFQDN": {
             "type": "string",
             "metadata": {
-                "description": "FQDN of your PE box, e.g: pupmstr.cloudapp.net"
-            },
-            "defaultValue": "pupmstr.cloudapp.net"
+                "description": "FQDN of your puppet master box, e.g: pupmstr.cloudapp.net"
+            }
         },
-        "pupmstrIP": {
+        "pupmasterIP": {
             "type": "string",
             "metadata": {
-                "description": "IP of your PE box, e.g: 192.168.1.1"
-            },
-            "defaultValue": "192.168.1.1"
+                "description": "IP of your Puppet master box, e.g: 192.168.1.1"
+            }
         },
-        "pupmstrInternalFQDN": {
+        "pupmasterInternalFQDN": {
             "type": "string",
             "metadata": {
-                "description": "Internal FQDN of your PE box, e.g: pupmstr.pupmstr.d6.internal.cloudapp.net.  Get it from node requests page in PE Console."
-            },
-            "defaultValue": "pupmstr.pupmstr.d6.internal.cloudapp.net"
+                "description": "Internal FQDN of your Puppet master box, e.g: pupmstr.pupmstr.d6.internal.cloudapp.net.  Get it from node requests page in PE Console."
+            }
         }
     },
     "variables": {
@@ -67,13 +63,13 @@
         "publicIPAddressName": "[concat(variables('scenarioPrefix'),'PublicIp')]",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "vmName": "[concat(variables('scenarioPrefix'),'VM')]",        
+        "vmName": "[concat(variables('scenarioPrefix'),'VM')]",
         "networkSecurityGroupName": "[concat(variables('scenarioPrefix'),'SG')]",
         "virtualNetworkName": "[concat(variables('scenarioPrefix'),'Vnet')]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
         "fileUris": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/puppet-agent-linux/install_puppet_agent.sh",
-        "commandToExecute": "[concat('./install_puppet_agent.sh ', parameters('pupmstrIP'), ' ', parameters('pupmstrFQDN'), ' ', parameters('pupmstrInternalFQDN'))]"
+        "commandToExecute": "[concat('./install_puppet_agent.sh ', parameters('pupmasterIP'), ' ', parameters('pupmasterFQDN'), ' ', parameters('pupmasterInternalFQDN'))]"
     },
     "resources": [
         {
@@ -95,6 +91,20 @@
             },
             "properties": {
                 "securityRules": [
+                     {
+                        "name": "SSH",
+                        "properties": {
+                            "description": "Allows SSH traffic",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
                     {
                         "name": "rule1",
                         "properties": {
@@ -153,8 +163,8 @@
             "name": "[variables('nicName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
             ],
             "properties": {
                 "dnsSettings": {
@@ -202,7 +212,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "osdisk1",
+                        "name": "[variables('OSDiskName')]",
                         "vhd": {
                             "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, variables('vmStorageAccountContainerName'),'/',variables('OSDiskName'),'.vhd')]"
                         },

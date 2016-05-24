@@ -3,28 +3,22 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "username": {
-      "value": "billybob"
+      "value": "localadmin"
     },
     "password": {
       "value": "GEN-PASSWORD"
     },
-    "newStorageAccountName": {
-      "value": "GEN-UNIQUE-11"
-    },
     "vmSize": {
-      "value": "Standard_D2"
+      "value": "Standard_A1"
     },
-    "dnsNameForPublicIP": {
-      "value": "GEN-UNIQUE-13"
-    },
-    "pupmstrFQDN":{
+    "pupmasterFQDN":{
       "value":"pupmstr.cloudapp.net"
     },
-    "pupmstrIP":{
+    "pupmasterIP":{
       "value":"192.168.1.1"
     },
-    "pupmstrInternalFQDN":{
-      "value":"pupmstr.pupmstr.d9.internal.cloudapp.net"
+    "pupmasterInternalFQDN":{
+      "value":"pupmstr.internal.cloudapp.net"
     }
   }
 }

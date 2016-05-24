@@ -47,20 +47,26 @@
   },
   "variables": {
     "platformFaultDomainCount": "2",
-    "platformUpdateDomainCount": "5"
+    "platformUpdateDomainCount": "5",
+    "apiVersion": {
+            "resources": { "deployments": "2015-01-01" },
+            "network": "2015-05-01-preview",
+            "storage": "2015-05-01-preview",
+            "compute": "2015-06-15"
+    },
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('storageAccountName')]",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').storage]",
       "location": "[resourceGroup().location]",
       "properties": {
         "accountType": "Standard_LRS"
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "type": "Microsoft.Compute/availabilitySets",
       "name": "sparkCluserAS",
       "location": "[resourceGroup().location]",
@@ -70,7 +76,7 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[resourceGroup().location]",

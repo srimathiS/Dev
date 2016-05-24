@@ -39,7 +39,7 @@
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
     "jenkMasterTemplateUrl": "[concat(variables('templateBaseUrl'), 'jenkmaster-resources.json')]",
     "jenkSlaveTemplateUrl": "[concat(variables('templateBaseUrl'), 'jenkslave-resources.json')]",
-    "namespace": "jenk",
+    "namespace": "[concat('jenk',resourcegroup().name)]",
     "networkSettings": {
       "virtualNetworkName": "[concat('vnet',resourcegroup().name)]",
       "addressPrefix": "10.0.0.0/16",
@@ -63,7 +63,7 @@
         "publisher": "Canonical",
         "offer": "UbuntuServer",
         "sku": "14.04.3-LTS",
-        "version": "Latest"
+        "version": "latest"
       },
       "scripts": [
         "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/jenkMstrInstall.sh",
@@ -75,7 +75,7 @@
         "publisher": "Canonical",
         "offer": "UbuntuServer",
         "sku": "14.04.3-LTS",
-        "version": "Latest"
+        "version": "latest"
       },
       "scripts": [
         "https://raw.githubusercontent.com/srimathiS/Dev/master/jenkins-on-ubuntu/jenkSlaveInstall.sh"
