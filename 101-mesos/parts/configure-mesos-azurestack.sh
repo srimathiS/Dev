@@ -502,7 +502,7 @@ installMesosDCOSCLI()
   sudo pip install virtualenv
   sudo -i -u $AZUREUSER mkdir $HOMEDIR/dcos
   for i in {1..10}; do
-    wget --tries 4 --retry-connrefused --waitretry=15 -qO- https://raw.githubusercontent.com/mesosphere/dcos-cli/master/bin/install/install-optout-dcos-cli.sh | sudo -i -u $AZUREUSER /bin/bash -s $HOMEDIR/dcos/. http://leader.mesos --add-path yes
+    wget --tries 4 --retry-connrefused --waitretry=15 -qO- https://raw.githubusercontent.com/mesosphere/dcos-cli/master/bin/install/install-optout-dcos-cli.sh | sudo -i -u $AZUREUSER /bin/bash -s $HOMEDIR/dcos/. http://$VMNAME:5050 --add-path yes
     if [ $? -eq 0 ]
     then
       echo "Mesos DCOS-CLI installed successfully"
