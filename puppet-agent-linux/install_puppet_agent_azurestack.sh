@@ -1,5 +1,14 @@
-MASTERSERVER=${1}
-echo "Master server: $MASTERSERVER"
+#!/bin/bash
+
+###########################################################
+# Installs puppet agent on Ubuntu 14.04 LTS
+###########################################################
+MASTERIP=${1}
+MASTERFQDN=${2}
+echo "Master server ip: $MASTERIP"
+echo "Master server fqdn: $MASTERFQDN"
+sed -i "2i$1 $2" /etc/hosts
+echo "added master ip and fqdn to etc/hosts successfully"
 echo "downloading the agent release package for Ubuntu 14.04 LTS"
 wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
 if [ $? -eq 0 ]
@@ -25,7 +34,7 @@ then
 echo "Agent installed successfully"
 fi
 echo "set the master server on the agent"
-server=$MASTERSERVER
+server=$MASTERFQDN
 if [ $? -eq 0 ]
 then
 echo "master server set correctly on the agent"
