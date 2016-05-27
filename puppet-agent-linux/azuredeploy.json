@@ -41,7 +41,6 @@
     },
     "variables": {
         "extensionName": "CustomScript",
-        "scenarioPrefix": "puppetLinux",
         "apiVersion": {
             "resources": { "deployments": "2015-01-01" },
             "network": "2015-05-01-preview",
@@ -51,25 +50,25 @@
         "imagePublisher": "Canonical",
         "imageOffer": "UbuntuServer",
         "ubuntuOSVersion": "14.04.3-LTS",
-        "OSDiskName": "[concat(variables('scenarioPrefix'),'OSDisk')]",
-        "nicName": "[concat(variables('scenarioPrefix'),'Nic')]",
+        "OSDiskName": "[concat(resourceGroup().name, 'OSDisk')]",
+        "nicName": "[concat(resourceGroup().name, 'Nic')]",
         "vnetAddressPrefix": "10.0.0.0/16",
-        "subnetName": "[concat(variables('scenarioPrefix'),'Subnet')]",
+        "subnetName": "[concat(resourceGroup().name,'Subnet')]",
         "subnetPrefix": "10.0.0.0/24",
         "azureStackDNSIP": "192.168.100.2",
-        "dnsNameForPublicIP": "[concat('dns', resourceGroup().name)]",
+        "dnsNameForPublicIP": "[concat(resourceGroup().name, 'dns')]",
         "storageAccountType": "Standard_LRS",
-        "storageAccountName": "[concat('sa', resourceGroup().name)]",
-        "publicIPAddressName": "[concat(variables('scenarioPrefix'),'PublicIp')]",
+        "storageAccountName": "[concat(resourceGroup().name, 'sa')]",
+        "publicIPAddressName": "[concat(resourceGroup().name,'PublicIp')]",
         "publicIPAddressType": "Dynamic",
         "vmStorageAccountContainerName": "vhds",
-        "vmName": "[concat(variables('scenarioPrefix'),'VM')]",
-        "networkSecurityGroupName": "[concat(variables('scenarioPrefix'),'SG')]",
-        "virtualNetworkName": "[concat(variables('scenarioPrefix'),'Vnet')]",
+        "vmName": "[concat(resourceGroup().name ,'VM')]",
+        "networkSecurityGroupName": "[concat(resourceGroup().name,'SG')]",
+        "virtualNetworkName": "[concat(resourceGroup().name,'Vnet')]",
         "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-        "fileUris": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/puppet-agent-linux/install_puppet_agent.sh",
-        "commandToExecute": "[concat('./install_puppet_agent.sh ', parameters('pupmasterIP'), ' ', parameters('pupmasterFQDN'), ' ', parameters('pupmasterInternalFQDN'))]"
+        "fileUris": "https://raw.githubusercontent.com/SrimathiS/Dev/master/puppet-agent-linux/install_puppet_agent_azurestack.sh",
+         "commandToExecute": "[concat('./install_puppet_agent.sh ', parameters('pupmasterIP'), ' ', parameters('pupmasterFQDN'),' ', parameters('pupmasterinternalFQDN'))]"
     },
     "resources": [
         {
@@ -91,7 +90,7 @@
             },
             "properties": {
                 "securityRules": [
-                     {
+                    {
                         "name": "SSH",
                         "properties": {
                             "description": "Allows SSH traffic",
@@ -167,6 +166,9 @@
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
             ],
             "properties": {
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
+                },
                 "dnsSettings": {
                     "dnsServers": [ "[ variables('azureStackDNSIP')]" ]
                 },

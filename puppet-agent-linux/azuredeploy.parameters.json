@@ -12,14 +12,13 @@
       "value": "Standard_A1"
     },
     "pupmasterFQDN":{
-      "value":"pupmstr.cloudapp.net"
+      "value":"PUPPETMASTERFQDN"
     },
     "pupmasterIP":{
-      "value":"192.168.1.1"
+      "value":"X.X.X.X"
     },
     "pupmasterInternalFQDN":{
-      "value":"pupmstr.internal.cloudapp.net"
+      "value":"PUPPETMASTERINTERNALFQDN"
     }
   }
 }
-

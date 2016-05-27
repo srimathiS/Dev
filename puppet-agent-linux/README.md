@@ -4,7 +4,9 @@
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 ## Prerequisites
-1. Make sure puppet master server is up on Azure or onPrem.You will need the FQDN and IP of the same while deploying through this template
+1. Make sure puppet master server is up on Azure or onPrem 
+2. For this agent deployment the master Server need to be of version Ubuntu 14.04.3-LTS and make sure port 8140 is opened.
+3. You will need the FQDN and IP of the master server while deploying through this template
 2. Follow the below links to create a Linux Image and upload the same to Azure Stack's Platform Image Repository
 	1. https://azure.microsoft.com/en-us/documentation/articles/azure-stack-linux/ 
 	2. https://azure.microsoft.com/en-us/documentation/articles/azure-stack-add-image-pir/
@@ -61,3 +63,6 @@ New-AzureRmResourceGroupDeployment `
     -TemplateFile $templateFile `
 	-TemplateParameterFile $templateParameterFile
 ```
+## Notes
+1. Post the template deployment you need to sign the agent certificates on the master server 
+2. For additional configurations try /etc/puppetlabs/puppet/puppet.conf
