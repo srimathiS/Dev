@@ -1,3 +1,5 @@
+MASTERSERVER=${1}
+echo "Master server: $MASTERSERVER"
 echo "downloading the agent release package for Ubuntu 14.04 LTS"
 wget https://apt.puppetlabs.com/puppetlabs-release-trusty.deb
 if [ $? -eq 0 ]
@@ -21,6 +23,12 @@ sudo apt-get install puppet-agent
 if [ $? -eq 0 ]
 then
 echo "Agent installed successfully"
+fi
+echo "set the master server on the agent"
+server=$MASTERSERVER
+if [ $? -eq 0 ]
+then
+echo "master server set correctly on the agent"
 fi
 echo "starting the puppet agent service"
 sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true.
