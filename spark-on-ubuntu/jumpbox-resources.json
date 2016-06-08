@@ -2,34 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "region": {
-      "type": "string",
-      "defaultValue": "West US",
-      "metadata": {
-        "Description": "Location where resources will be provisioned"
-      }
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "defaultValue": "myVNET",
-      "metadata": {
-        "Description": "The arbitrary name of the virtual network provisioned for the cluster"
-      }
-    },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "Subnet-1",
-      "metadata": {
-        "Description": "Subnet name for the virtual network that resources will be provisioned in to"
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "defaultValue": "uniquestoragejumpspark",
-      "metadata": {
-        "Description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
-      }
-    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -62,17 +34,13 @@
       "metadata": {
         "Description": "Image SKU"
       }
-    },
-    "computerNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "Description": "The global VM name prefix"
-      }
     }
   },
   "variables": {
     "vmStorageAccountContainerName": "vhd",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
+    "virtualNetworkName": "",
+    "storageAccountName": "",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('subnetName'))]",
     "vmSize": "Standard_A1",
     "apiVersion": {
@@ -93,7 +61,7 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').network]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "nicJumpbox",
       "location": "[resourceGroup().location]",
@@ -118,7 +86,7 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "[variables('apiVersion').compute]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "jumpbox",
       "location": "[resourceGroup().location]",

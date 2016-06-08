@@ -2,34 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "region": {
-      "type": "string",
-      "defaultValue": "West US",
-      "metadata": {
-        "Description": "Location where resources will be provisioned"
-      }
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "defaultValue": "myVNET",
-      "metadata": {
-        "Description": "The arbitrary name of the virtual network provisioned for the cluster"
-      }
-    },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "Subnet-1",
-      "metadata": {
-        "Description": "Subnet name for the virtual network that resources will be provisioned in to"
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "defaultValue": "uniquestoragejumpspark",
-      "metadata": {
-        "Description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
-      }
-    },
     "adminUsername": {
       "type": "string",
       "metadata": {
@@ -58,15 +30,9 @@
     },
     "imageSKU": {
       "type": "string",
-      "defaultValue": "14.04.2-LTS",
+      "defaultValue": "14.04.3-LTS",
       "metadata": {
         "Description": "Image SKU"
-      }
-    },
-    "computerNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "Description": "The global VM name prefix"
       }
     }
   },
