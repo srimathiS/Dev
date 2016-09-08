@@ -1,27 +1,42 @@
-# [IaaS Linux VM]
+# Deploy Linux Diagnostic extension to an existing Linux VM
 
-<a href="http://armviz.io/#/?load=https://raw.githubusercontent.com/Azure/azurestack-quickstart-templates/master/101-simple-linux-vm/azuredeploy.json" target="_blank">
-  <img src="http://armviz.io/visualizebutton.png"/>
+This template deploys the Linux Diagnostic Extension to an existing Linux VM in the Azure Stack environment.
+
+Diagnostic Extension can:
+•Collects and uploads Linux VM's system performance, diagnostic, and syslog data to user’s storage table.
+•Enables user to customize the data metrics that will be collected and uploaded.
+•Enables user to upload specified log files to designated storage table
+
+You can read the User Guide for further details - https://github.com/Azure/azure-linux-extensions/tree/master/Diagnostic
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazurestack-quickstart-templates%2Fdevelop%2F101-linux-diagnostics-ext%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-This template deploys a simple Linux VM such as ubuntu 14.04, ubuntu 15.10, sles 12 SP1 , CentOS 6.7, CentOS 7.2
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazurestack-quickstart-templates%2Fdevelop%2F101-linux-diagnostics-ext%2Fazuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
-`Tags: [Linux, Tag2, Tag3]`
+`Tags: [Linux, Azurestack, Azure]`
 
 | Endpoint        | Version           | Validated  |
 | ------------- |:-------------:| -----:|
 | Microsoft Azure Stack      | TP2      |  yes|
+| Microsoft Azure      |       |  yes|
 
 ## Prerequisites
+An existing linux vm in the same resource group
 
-Follow the below links to create a Linux Image and upload the same to Azure Stack's Platform Image Repository
-1. https://azure.microsoft.com/en-us/documentation/articles/azure-stack-linux/ 
-2. https://azure.microsoft.com/en-us/documentation/articles/azure-stack-add-image-pir/
+## Deployment Steps 
 
-## Deployment steps
-1. Deploy to azure stack portal using custom deployment.
-2. Deploy through Visual Studio using azuredeploy.json and azuredeploy.parameters.json. Note: for other linux versions deployment , rename the *.azuredeploy.parameters.json to the default name before deploying via VisualStudio
-2. Deploy the solution from PowerShell with the following PowerShell script 
+1. Using Azure CLI
 
+  https://azure.microsoft.com/en-us/documentation/articles/xplat-cli-azure-resource-manager/
+ 
+2. Deploy through portal using custom deployment.
+
+3. Deploy through Visual Studio using azuredeploy.json and azuredeploy.parameters.json. 
+
+4. Using Powershell (https://azure.microsoft.com/en-us/documentation/articles/powershell-azure-resource-manager/)
 ``` PowerShell
 ## Configure the environment with the Add-AzureRmEnvironment cmdlt
 $endptOut = Invoke-RestMethod "$("https://api.$env:USERDNSDOMAIN".ToLowerInvariant())/metadata/endpoints?api-version=1.0"
@@ -52,12 +67,7 @@ $RGName = "myRG$myNum"
 $myLocation = "local"
 
 $templateFile= "azuredeploy.json"
-# Fix the GEN-* values in the azuredeploy.parameters.json before proceeding to next steps
 $templateParameterFile= "azuredeploy.parameters.json"
-# For Ubuntu 14.04 $templateParameterFile= "ubuntu.14.04.azuredeploy.parameters.json"
-# For Suse $templateParameterFile= "suse.12.sp1.azuredeploy.parameters.json"
-# For CentOS 6.7 $templateParameterFile= "centos.6.7.azuredeploy.parameters.json"
-# For CentOS 7.2 $templateParameterFile= "centos.7.2.azuredeploy.parameters.json"
 
 # Create Resource Group for Template Deployment
 New-AzureRmResourceGroup -Name $RGName -Location $myLocation
@@ -68,5 +78,4 @@ New-AzureRmResourceGroupDeployment `
     -TemplateFile $templateFile `
 	-TemplateParameterFile $templateParameterFile
 ```
-
 
